@@ -3,7 +3,9 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search, Bell, Settings, Plus, Filter, Grid, List } from "lucide-react"
+import { Search, Bell, Settings, Plus, Filter } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js"
 
 interface DashboardTopbarProps {
@@ -11,6 +13,31 @@ interface DashboardTopbarProps {
 }
 
 export function DashboardTopbar({ user }: DashboardTopbarProps) {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const bellRef = useRef<HTMLButtonElement>(null);
+  const router = useRouter();
+
+  // Dummy search handler for now
+  const onSearch = (term: string) => {
+    // TODO: Wire this to palette search logic
+    // For now, just log
+    console.log("Searching palettes for:", term);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (bellRef.current && !bellRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const getGreeting = () => {
     const hour = new Date().getHours()
     if (hour < 12) return "Good morning"
@@ -38,12 +65,44 @@ export function DashboardTopbar({ user }: DashboardTopbarProps) {
           </div>
 
           {/* Notifications */}
-          <Button variant="ghost" size="sm" className="relative">
-            <Bell className="w-5 h-5 text-gray-600" />
-            <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 bg-red-500 text-white text-xs flex items-center justify-center">
-              3
-            </Badge>
-          </Button>
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="relative"
+              onClick={() => setShowNotifications((prev) => !prev)}
+              ref={bellRef}
+              aria-label="Show notifications"
+            >
+              <Bell className="w-5 h-5 text-gray-600" />
+              <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 bg-red-500 text-white text-xs flex items-center justify-center">
+                3
+              </Badge>
+            </Button>
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-xl border border-gray-100 z-50">
+                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                  <span className="font-semibold text-gray-900">Notifications</span>
+                  <span className="text-xs text-gray-400">Recent</span>
+                </div>
+                <ul className="divide-y divide-gray-100 max-h-72 overflow-y-auto">
+                  <li className="px-4 py-3 hover:bg-gray-50 transition flex gap-3 items-start">
+                    <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-blue-500 rounded-full flex items-center justify-center text-white">
+                      <Bell className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">Your palette <span className="font-semibold text-teal-600">"Summer Vibes"</span> was approved!</p>
+                      <span className="text-xs text-gray-500">Just now</span>
+                    </div>
+                  </li>
+                  {/* Add more demo notifications here if desired */}
+                </ul>
+                <div className="px-4 py-2 border-t border-gray-100 text-center">
+                  <button className="text-xs text-teal-600 hover:underline font-medium">View all notifications</button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Settings */}
           <Button variant="ghost" size="sm">
@@ -65,17 +124,30 @@ export function DashboardTopbar({ user }: DashboardTopbarProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* View toggle */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
-            <Button variant="ghost" size="sm" className="bg-white shadow-sm">
-              <Grid className="w-4 h-4" />
+          {/* Search for palettes */}
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              onSearch(searchTerm);
+            }}
+            className="flex items-center gap-2"
+          >
+            <Input
+              type="text"
+              placeholder="Search palettes..."
+              className="w-48"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+            <Button type="submit" variant="outline" size="sm">
+              <Search className="w-4 h-4 mr-1" />
+              Search
             </Button>
-            <Button variant="ghost" size="sm">
-              <List className="w-4 h-4" />
-            </Button>
-          </div>
-
-          <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+          </form>
+          <Button
+            className="bg-teal-600 hover:bg-teal-700 text-white"
+            onClick={() => router.push("/generator")}
+          >
             <Plus className="w-4 h-4 mr-2" />
             New Palette
           </Button>

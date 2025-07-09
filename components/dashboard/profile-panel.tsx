@@ -31,6 +31,7 @@ export function ProfilePanel({ user }: ProfilePanelProps) {
     avatar_url: user.user_metadata?.avatar_url || "",
     website: user.user_metadata?.website || "",
     bio: user.user_metadata?.bio || "",
+    location: user.user_metadata?.location || "",
     created_at: "",
     updated_at: "",
   })
@@ -61,7 +62,14 @@ export function ProfilePanel({ user }: ProfilePanelProps) {
     try {
       const profile = await DatabaseService.getUserProfile(user.id)
       if (profile) {
-        setProfileData(profile)
+        setProfileData({
+          ...profile,
+          full_name: profile.full_name || "",
+          avatar_url: profile.avatar_url || "",
+          website: profile.website || "",
+          bio: profile.bio || "",
+          location: profile.location || "",
+        })
       }
     } catch (error) {
       console.error("Error fetching profile:", error)
@@ -227,7 +235,7 @@ export function ProfilePanel({ user }: ProfilePanelProps) {
                 </AvatarFallback>
               </Avatar>
               <Label htmlFor="avatar-upload" className="cursor-pointer">
-                <Button variant="outline" size="sm" asChild>
+                <Button variant="outline" size="sm">
                   <Upload className="w-4 h-4 mr-2" />
                   Change Photo
                 </Button>

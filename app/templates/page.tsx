@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useRouter } from "next/navigation"
 import {
   Select,
   SelectContent,
@@ -13,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ArrowLeft } from "lucide-react"
 
 interface PublicPalette {
   id: string
@@ -38,6 +40,7 @@ export default function TemplatesPage() {
   const [copiedColor, setCopiedColor] = useState<string | null>(null)
   const [favoritePalettes, setFavoritePalettes] = useState<Set<string>>(new Set())
   const { toast } = useToast()
+  const router = useRouter()
 
   useEffect(() => {
     checkUser()
@@ -75,29 +78,13 @@ export default function TemplatesPage() {
     try {
       setLoading(true)
 
-      const { data, error } = await supabase
-        .from("palettes")
-        .select(
-          `
-          id,
-          name,
-          type,
-          colors,
-          dominant_color,
-          created_at,
-          user_id
-        `,
-        )
-        .eq("is_public", true)
-        .order("created_at", { ascending: false })
-        .limit(50)
+      const { data, error } = await supabase.rpc("get_public_palettes_with_creators")
 
       if (error) throw error
 
       const palettesWithUsers = data.map((palette) => ({
         ...palette,
-        user_email: "Community User",
-        user_name: `User ${palette.user_id.slice(0, 8)}`,
+        user_name: palette.user_name || `User ${palette.user_id.slice(0, 8)}`,
       }))
 
       setPalettes(palettesWithUsers)
@@ -239,6 +226,12 @@ export default function TemplatesPage() {
 
   return (
     <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="mb-4">
+        <Button variant="outline" size="sm" onClick={() => router.back()}>
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+      </div>
       <header className="mb-8 text-center">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900">Template Library</h1>
         <p className="mt-2 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">

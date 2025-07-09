@@ -20,6 +20,7 @@ import {
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
+import Link from "next/link"
 
 interface DashboardSidebarProps {
   user: SupabaseUser
@@ -93,19 +94,19 @@ export function DashboardSidebar({ user, activeTab, onTabChange, collapsed, onTo
 
   return (
     <div
-      className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${
+      className={`fixed top-0 left-0 h-screen bg-white border-r border-gray-200 flex flex-col transition-all duration-300 z-50 ${
         collapsed ? "w-16" : "w-64"
       }`}
     >
       {/* Header */}
       <div className="p-4 border-b border-gray-200 flex items-center justify-between">
         {!collapsed && (
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg flex items-center justify-center">
               <Palette className="w-5 h-5 text-white" />
             </div>
             <span className="font-semibold text-gray-900">PaletteGenius</span>
-          </div>
+          </Link>
         )}
         <Button variant="ghost" size="sm" onClick={onToggleCollapse} className="text-gray-500">
           {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -178,43 +179,29 @@ export function DashboardSidebar({ user, activeTab, onTabChange, collapsed, onTo
             ))}
           </nav>
         </div>
-
-        {/* Upgrade Card */}
-        {!collapsed && (
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4 mb-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Crown className="w-5 h-5 text-amber-600" />
-              <span className="font-semibold text-amber-900 text-sm">Upgrade to Pro</span>
-            </div>
-            <p className="text-xs text-amber-800 mb-3">
-              Unlock unlimited palettes, advanced exports, and team collaboration.
-            </p>
-            <Button size="sm" className="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Upgrade Now
-            </Button>
-          </div>
-        )}
       </div>
 
-      {/* User Profile */}
-      <div className="p-4 border-t border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-            {user.email?.charAt(0).toUpperCase()}
+      {/* Footer */}
+      <div className="mt-auto">
+        {/* User Profile */}
+        <div className="p-4 border-t border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-teal-500 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+              {user.email?.charAt(0).toUpperCase()}
+            </div>
+            {!collapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">{user.email}</p>
+                <p className="text-xs text-gray-500">Free Plan</p>
+              </div>
+            )}
           </div>
           {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{user.email}</p>
-              <p className="text-xs text-gray-500">Free Plan</p>
-            </div>
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="w-full mt-2 text-gray-600 text-xs">
+              Sign Out
+            </Button>
           )}
         </div>
-        {!collapsed && (
-          <Button variant="ghost" size="sm" onClick={handleSignOut} className="w-full mt-2 text-gray-600 text-xs">
-            Sign Out
-          </Button>
-        )}
       </div>
     </div>
   )

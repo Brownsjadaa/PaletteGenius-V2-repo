@@ -29,7 +29,7 @@ function DashboardLayoutComponent({ user, activeTab, onTabChange, children }: Da
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
       />
 
-      <div className="flex flex-1 flex-col">
+      <div className={`flex flex-1 flex-col transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
         <DashboardTopbar user={user} />
         <main className="flex-1 overflow-auto">
           <div className="p-6">{children}</div>

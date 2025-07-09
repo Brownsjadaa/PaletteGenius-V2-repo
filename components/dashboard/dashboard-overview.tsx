@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Palette, Folder, Clock, Star, Download, Users, BarChart3, ArrowUpRight, Plus } from "lucide-react"
+import { Palette, Folder, Clock, Star, Download, Users, BarChart3, ArrowUpRight, Plus, LayoutTemplate } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import type { User } from "@supabase/supabase-js"
 import { useRouter } from "next/navigation"
@@ -265,6 +265,10 @@ export function DashboardOverview({ user, onTabChange }: DashboardOverviewProps)
             <Button variant="outline" className="w-full justify-start" onClick={() => onTabChange("analytics")}>
               <BarChart3 className="w-4 h-4 mr-2" />
               View Analytics
+            </Button>
+            <Button variant="outline" className="w-full justify-start" onClick={() => router.push("/templates")}>
+              <LayoutTemplate className="w-4 h-4 mr-2" />
+              Browse Templates
             </Button>
           </CardContent>
 
